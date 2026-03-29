@@ -1,0 +1,14 @@
+{
+  "name": "kisisel-isletim-sistemi",
+  "version": "2.0.0",
+  "description": "Kisisel Isletim Sistemi Simulasyonu - Electron Uygulamasi",
+  "main": "electron_main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Neslihan Merve Baycan",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^41.0.3"
+  }
+}

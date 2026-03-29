@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kişisel İşletim Sistemi v2.0</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- ==================== SAĞ TIK MENÜSÜ ==================== -->
+    <div id="context-menu" class="context-menu" style="display:none;">
+        <div class="menu-item" onclick="createDesktopItem('folder')">
+            <i class="fa-solid fa-folder" style="color:#F8D775;"></i> Yeni Klasör
+        </div>
+        <div class="menu-item" onclick="createDesktopItem('file')">
+            <i class="fa-solid fa-file-lines"></i> Yeni Metin Belgesi
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" onclick="browserRefresh()">
+            <i class="fa-solid fa-rotate-right"></i> Sayfayı Yenile
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" onclick="openWindow('settings-window')">
+            <i class="fa-solid fa-desktop"></i> Kişiselleştir
+        </div>
+    </div>
+
+    <!-- MASAÜSTÜ İKONU SAĞ TIK MENÜSÜ -->
+    <div id="icon-context-menu" class="context-menu" style="display:none;">
+        <div class="menu-item" onclick="renameSelectedIcon()">
+            <i class="fa-solid fa-pen" style="color:#0078D7;"></i> Yeniden Adlandır
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" onclick="deleteSelectedIcon()">
+            <i class="fa-solid fa-trash" style="color:#E81123;"></i> Sil
+        </div>
+    </div>
+
+    <!-- ==================== MASAÜSTÜ ==================== -->
+    <div class="desktop" id="desktop">
+        <div class="icon" id="icon-browser"     onclick="openWindow('browser-window')">
+            <i class="fa-brands fa-chrome"></i>
+            <span>İnternet Tarayıcı</span>
+        </div>
+        <div class="icon" id="icon-terminal"    onclick="openWindow('terminal-window')">
+            <i class="fa-solid fa-terminal"></i>
+            <span>Sistem Terminali</span>
+        </div>
+        <div class="icon" id="icon-settings"    onclick="openWindow('settings-window')">
+            <i class="fa-solid fa-gear"></i>
+            <span>Ayarlar</span>
+        </div>
+        <div class="icon" id="icon-about"       onclick="openWindow('about-window')">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Sistem Hakkında</span>
+        </div>
+        <div class="icon" id="icon-notepad"     onclick="openWindow('notepad-window')">
+            <i class="fa-solid fa-file-lines"></i>
+            <span>Not Defteri</span>
+        </div>
+        <div class="icon" id="icon-calc"        onclick="openWindow('calc-window')">
+            <i class="fa-solid fa-calculator"></i>
+            <span>Hesap Makinesi</span>
+        </div>
+    </div>
+
+    <!-- ==================== PENCERELER ==================== -->
+
+    <!-- ---- TARAYICI ---- -->
+    <div class="window" id="browser-window" style="display:none; top:5%; left:10%; width:78%; height:82%;">
+        <div class="window-header" onmousedown="dragWindow(event,'browser-window')">
+            <div class="header-left">
+                <i class="fa-brands fa-chrome" style="margin-right:6px;"></i>
+                <span id="browser-title">İnternet Tarayıcı</span>
+            </div>
+            <div class="window-controls">
+                <button class="min-btn"   onclick="minimizeWindow('browser-window')">─</button>
+                <button class="max-btn"   onclick="maximizeWindow('browser-window')">□</button>
+                <button class="close-btn" onclick="closeWindow('browser-window')">✕</button>
+            </div>
+        </div>
+        <!-- Tarayıcı Araç Çubuğu -->
+        <div class="browser-toolbar">
+            <button class="tb-btn" onclick="browserBack()"   title="Geri"><i class="fa-solid fa-arrow-left"></i></button>
+            <button class="tb-btn" onclick="browserForward()" title="İleri"><i class="fa-solid fa-arrow-right"></i></button>
+            <button class="tb-btn" onclick="browserRefresh()" title="Yenile"><i class="fa-solid fa-rotate-right"></i></button>
+            <div class="url-wrap">
+                <i class="fa-solid fa-lock" style="color:#4CAF50;font-size:12px;margin:0 6px;"></i>
+                <input type="text" id="url-input" value="https://www.bing.com" placeholder="Adres giriniz...">
+            </div>
+            <button class="tb-btn go-btn" onclick="navigateBrowser()">Git</button>
+        </div>
+        <!-- Hızlı Erişim Linkleri -->
+        <div class="bookmarks">
+            <button onclick="goTo('https://www.google.com')">Google</button>
+            <button onclick="goTo('https://www.bing.com')">Bing</button>
+            <button onclick="goTo('https://tr.wikipedia.org')">Vikipedi</button>
+            <button onclick="goTo('https://www.youtube.com')">YouTube</button>
+            <button onclick="goTo('https://www.github.com')">GitHub</button>
+        </div>
+        <div class="window-content" style="padding:0; flex:1; display:flex; flex-direction:column;">
+            <webview id="browser-frame" src="https://www.google.com" style="flex:1; width:100%; height:100%; border:none; background:#fff;"></webview>
+        </div>
+    </div>
+
+    <!-- ---- TERMİNAL ---- -->
+    <div class="window" id="terminal-window" style="display:none; top:18%; left:12%; width:55%; height:52%;">
+        <div class="window-header" onmousedown="dragWindow(event,'terminal-window')">
+            <div class="header-left"><i class="fa-solid fa-terminal" style="margin-right:6px;"></i>OS Terminali</div>
+            <div class="window-controls">
+                <button class="min-btn"   onclick="minimizeWindow('terminal-window')">─</button>
+                <button class="close-btn" onclick="closeWindow('terminal-window')">✕</button>
+            </div>
+        </div>
+        <div class="window-content terminal-content" id="terminal-content">
+            <p>Kişisel İşletim Sistemi v2.0 [Çekirdek Modu]</p>
+            <p>Telif Hakkı (c) 2026. Tüm hakları saklıdır.</p>
+            <p style="color:#888; font-size:12px;">Yardım için <span style="color:#4CAF50;">help</span> yazın.</p>
+            <br>
+            <div class="terminal-input-wrapper" id="terminal-input-line">
+                <span class="prompt">C:\OS&gt; </span>
+                <input type="text" id="terminal-input" autocomplete="off" spellcheck="false"
+                    onkeypress="handleTerminalCmd(event)">
+            </div>
+        </div>
+    </div>
+
+    <!-- ---- AYARLAR ---- -->
+    <div class="window" id="settings-window" style="display:none; top:10%; left:20%; width:680px; height:500px;">
+        <div class="window-header" onmousedown="dragWindow(event,'settings-window')">
+            <div class="header-left"><i class="fa-solid fa-gear" style="margin-right:6px;"></i>Ayarlar</div>
+            <div class="window-controls">
+                <button class="min-btn"   onclick="minimizeWindow('settings-window')">─</button>
+                <button class="close-btn" onclick="closeWindow('settings-window')">✕</button>
+            </div>
+        </div>
+        <div class="window-content settings-layout">
+            <!-- Sol kategori menüsü -->
+            <div class="settings-nav">
+                <div class="settings-nav-item active" onclick="showSettingsTab('wallpaper')">
+                    <i class="fa-solid fa-image"></i> Duvar Kağıdı
+                </div>
+                <div class="settings-nav-item" onclick="showSettingsTab('theme')">
+                    <i class="fa-solid fa-palette"></i> Tema
+                </div>
+                <div class="settings-nav-item" onclick="showSettingsTab('display')">
+                    <i class="fa-solid fa-desktop"></i> Ekran
+                </div>
+                <div class="settings-nav-item" onclick="showSettingsTab('about')">
+                    <i class="fa-solid fa-circle-info"></i> Hakkında
+                </div>
+            </div>
+            <!-- Sağ içerik -->
+            <div class="settings-content">
+
+                <!-- Duvar Kağıdı -->
+                <div class="settings-tab" id="tab-wallpaper">
+                    <h2>Duvar Kağıdı Seçin</h2>
+                    <p style="color:#888;margin-bottom:15px;">Bir duvar kağıdı seçerek masaüstü arka planınızı değiştirin.</p>
+                    <div class="wallpaper-grid">
+                        <div class="wp-thumb" style="background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);"
+                            onclick="setWallpaper('linear-gradient(135deg,#0f0c29,#302b63,#24243e)')">
+                            <span>Gece Mavisi</span>
+                        </div>
+                        <div class="wp-thumb" style="background:linear-gradient(135deg,#0078D7,#00b4d8);"
+                            onclick="setWallpaper('linear-gradient(135deg,#0078D7,#00b4d8)')">
+                            <span>Windows Mavisi</span>
+                        </div>
+                        <div class="wp-thumb" style="background:linear-gradient(135deg,#1a1a1a,#2d2d2d);"
+                            onclick="setWallpaper('linear-gradient(135deg,#1a1a1a,#2d2d2d)')">
+                            <span>Koyu Gri</span>
+                        </div>
+                        <div class="wp-thumb" style="background:linear-gradient(135deg,#134e5e,#71b280);"
+                            onclick="setWallpaper('linear-gradient(135deg,#134e5e,#71b280)')">
+                            <span>Orman Yeşili</span>
+                        </div>
+                        <div class="wp-thumb" style="background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);"
+                            onclick="setWallpaper('linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)')">
+                            <span>Gün Batımı</span>
+                        </div>
+                        <div class="wp-thumb" style="background:linear-gradient(135deg,#0d0d0d,#1a0533);"
+                            onclick="setWallpaper('linear-gradient(135deg,#0d0d0d,#1a0533)')">
+                            <span>Uzay Siyahı</span>
+                        </div>
+                        <div class="wp-thumb" style="background:linear-gradient(135deg,#2980b9,#6dd5fa,#ffffff);"
+                            onclick="setWallpaper('linear-gradient(135deg,#2980b9,#6dd5fa,#ffffff)')">
+                            <span>Gökyüzü</span>
+                        </div>
+                        <div class="wp-thumb" style="background:linear-gradient(135deg,#f7971e,#ffd200);"
+                            onclick="setWallpaper('linear-gradient(135deg,#f7971e,#ffd200)')">
+                            <span>Sarı Altın</span>
+                        </div>
+                    </div>
+                    <!-- Özel Renk Seçici -->
+                    <div style="margin-top:20px; display:flex; align-items:center; gap:10px;">
+                        <label style="font-weight:600;">Özel Renk:</label>
+                        <input type="color" id="custom-color-1" value="#0078D7" style="width:40px;height:35px;border:none;cursor:pointer;border-radius:5px;">
+                        <input type="color" id="custom-color-2" value="#00b4d8" style="width:40px;height:35px;border:none;cursor:pointer;border-radius:5px;">
+                        <button class="settings-apply-btn" onclick="applyCustomWallpaper()">Uygula</button>
+                    </div>
+                </div>
+
+                <!-- Tema -->
+                <div class="settings-tab" id="tab-theme" style="display:none;">
+                    <h2>Tema Rengi</h2>
+                    <p style="color:#888;margin-bottom:15px;">Görev çubuğu ve pencere renk temasını seçin.</p>
+                    <div class="theme-options">
+                        <div class="theme-chip" style="background:#0078D7;" onclick="setTheme('#0078D7','#005a9e')">Windows Mavisi</div>
+                        <div class="theme-chip" style="background:#107C10;" onclick="setTheme('#107C10','#0a5a0a')">Yeşil</div>
+                        <div class="theme-chip" style="background:#5C2D91;" onclick="setTheme('#5C2D91','#40217a')">Mor</div>
+                        <div class="theme-chip" style="background:#D83B01;" onclick="setTheme('#D83B01','#a02c01')">Turuncu</div>
+                        <div class="theme-chip" style="background:#E81123;" onclick="setTheme('#E81123','#b00d1a')">Kırmızı</div>
+                        <div class="theme-chip" style="background:#2b2b2b; border:1px solid #555;" onclick="setTheme('#2b2b2b','#1a1a1a')">Koyu Gri</div>
+                    </div>
+                    <p style="margin-top:20px;color:#888;">Seçilen tema görev çubuğuna ve başlat menüsüne uygulanır.</p>
+                </div>
+
+                <!-- Ekran -->
+                <div class="settings-tab" id="tab-display" style="display:none;">
+                    <h2>Ekran Ayarları</h2>
+                    <div class="settings-row">
+                        <label>İkon Boyutu:</label>
+                        <input type="range" min="60" max="120" value="80" oninput="setIconSize(this.value)">
+                    </div>
+                    <div class="settings-row" style="margin-top:20px;">
+                        <label>Masaüstü İkon Yazısı:</label>
+                        <input type="checkbox" id="icon-label-toggle" checked onchange="toggleIconLabels()">
+                        <label for="icon-label-toggle"> Göster</label>
+                    </div>
+                    <div class="settings-row" style="margin-top:20px;">
+                        <label>Saat Formatı:</label>
+                        <select id="clock-format" onchange="updateClock()">
+                            <option value="24">24 Saat</option>
+                            <option value="12">12 Saat (AM/PM)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Hakkında -->
+                <div class="settings-tab" id="tab-about" style="display:none;">
+                    <h2>Sistem Bilgisi</h2>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <tr><td style="padding:8px 0;color:#888;width:180px;">İşletim Sistemi</td><td style="font-weight:600;">Kişisel OS v2.0</td></tr>
+                        <tr><td style="padding:8px 0;color:#888;">Geliştirici</td><td style="font-weight:600;">Neslihan Merve Baycan</td></tr>
+                        <tr><td style="padding:8px 0;color:#888;">Çekirdek</td><td style="font-weight:600;">Assembly Bootloader + C++ Win32 + HTML5</td></tr>
+                        <tr><td style="padding:8px 0;color:#888;">Yapı Tarihi</td><td style="font-weight:600;">Mart 2026</td></tr>
+                        <tr><td style="padding:8px 0;color:#888;">Ekran Çözünürlüğü</td><td style="font-weight:600;" id="screen-res">—</td></tr>
+                    </table>
+                    <p style="margin-top:20px;color:#888;font-size:13px;">
+                        Bu işletim sistemi projesi üç katmandan oluşmaktadır:<br>
+                        • <b>Assembly Katmanı:</b> NASM ile derlenen gerçek bootloader (BIOS INT)<br>
+                        • <b>Sistem Katmanı:</b> C++ Win32 API ile uygulama yönetimi<br>
+                        • <b>Arayüz Katmanı:</b> HTML5/CSS3/JS ile görsel masaüstü simülasyonu
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ---- SİSTEM HAKKINDA ---- -->
+    <div class="window" id="about-window" style="display:none; top:25%; left:32%; width:400px; height:320px;">
+        <div class="window-header" onmousedown="dragWindow(event,'about-window')">
+            <div class="header-left"><i class="fa-solid fa-circle-info" style="margin-right:6px;"></i>Sistem Hakkında</div>
+            <div class="window-controls">
+                <button class="close-btn" onclick="closeWindow('about-window')">✕</button>
+            </div>
+        </div>
+        <div class="window-content" style="text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+            <i class="fa-brands fa-windows" style="font-size:65px;color:#0078D7;margin-bottom:15px;"></i>
+            <h2 style="font-weight:300;">Kişisel İşletim Sistemi</h2>
+            <p style="color:#888;margin-top:5px;">Sürüm 2.0 — Mart 2026</p>
+            <p style="margin-top:15px;">Geliştirici: <b>Neslihan Merve Baycan</b></p>
+            <p style="margin-top:8px;font-size:13px;color:#888;">Assembly • C++ Win32 API • HTML5</p>
+            <button onclick="closeWindow('about-window')" style="margin-top:20px;padding:8px 30px;
+                background:#0078D7;border:none;color:white;border-radius:4px;cursor:pointer;">Tamam</button>
+        </div>
+    </div>
+
+    <!-- ---- NOT DEFTERİ ---- -->
+    <div class="window" id="notepad-window" style="display:none; top:15%; left:30%; width:500px; height:400px; padding:0;">
+        <div class="window-header" onmousedown="dragWindow(event,'notepad-window')">
+            <div class="header-left"><i class="fa-solid fa-file-lines" style="margin-right:6px;"></i><span id="notepad-title">Not Defteri</span></div>
+            <div class="window-controls">
+                <button class="min-btn"   onclick="minimizeWindow('notepad-window')">─</button>
+                <button class="max-btn"   onclick="maximizeWindow('notepad-window')">□</button>
+                <button class="close-btn" onclick="closeWindow('notepad-window')">✕</button>
+            </div>
+        </div>
+        <div class="window-content" style="padding:0; display:flex; flex-direction:column; height: calc(100% - 36px);">
+            <div style="background:#f0f0f0; padding:2px 5px; border-bottom:1px solid #ccc; font-size:12px; display:flex; gap:10px; color:#333;">
+                <span style="cursor:pointer; padding:2px 5px; border-radius:3px;">Dosya</span>
+                <span style="cursor:pointer; padding:2px 5px; border-radius:3px;">Düzen</span>
+                <span style="cursor:pointer; padding:2px 5px; border-radius:3px;">Biçim</span>
+                <span style="cursor:pointer; padding:2px 5px; border-radius:3px;">Görünüm</span>
+                <span style="cursor:pointer; padding:2px 5px; border-radius:3px;">Yardım</span>
+            </div>
+            <textarea id="notepad-textarea" oninput="saveNotepadContent()" style="flex:1; border:none; outline:none; padding:10px; font-family:'Segoe UI',sans-serif; font-size:14px; resize:none; background:#fff; color:#000;" spellcheck="false"></textarea>
+        </div>
+    </div>
+
+    <!-- ---- DOSYA GEZGİNİ ---- -->
+    <div class="window" id="folder-window" style="display:none; top:15%; left:25%; width:550px; height:400px; padding:0; background:#fff;">
+        <div class="window-header" onmousedown="dragWindow(event,'folder-window')">
+            <div class="header-left"><i class="fa-solid fa-folder-open" style="margin-right:6px; color:#F8D775;"></i><span id="folder-title">Klasör</span></div>
+            <div class="window-controls">
+                <button class="min-btn"   onclick="minimizeWindow('folder-window')">─</button>
+                <button class="max-btn"   onclick="maximizeWindow('folder-window')">□</button>
+                <button class="close-btn" onclick="closeWindow('folder-window')">✕</button>
+            </div>
+        </div>
+        <div class="folder-toolbar" style="background:#f0f0f0; padding:5px 10px; border-bottom:1px solid #ccc; display:flex; gap:10px;">
+            <button onclick="createNoteInFolder()" style="padding:5px 12px; font-size:12px; background:#fff; border:1px solid #ccc; border-radius:3px; cursor:pointer;"><i class="fa-solid fa-plus" style="color:#0078D7;"></i> Yeni Metin Belgesi</button>
+        </div>
+        <div class="window-content folder-content" id="folder-content" style="padding:15px; display:flex; flex-wrap:wrap; gap:15px; overflow-y:auto; height:calc(100% - 66px); align-content:flex-start; background:#fff;">
+            <!-- Notes will be injected here -->
+        </div>
+    </div>
+
+    <!-- ---- HESAP MAKİNESİ ---- -->
+    <div class="window" id="calc-window" style="display:none; top:20%; left:40%; width:320px; height:460px;">
+        <div class="window-header" onmousedown="dragWindow(event,'calc-window')">
+            <div class="header-left"><i class="fa-solid fa-calculator" style="margin-right:6px;"></i>Hesap Makinesi</div>
+            <div class="window-controls">
+                <button class="min-btn"   onclick="minimizeWindow('calc-window')">─</button>
+                <button class="max-btn"   onclick="maximizeWindow('calc-window')">□</button>
+                <button class="close-btn" onclick="closeWindow('calc-window')">✕</button>
+            </div>
+        </div>
+        <div class="window-content calc-layout" style="padding:15px; background:#f4f4f4; display:flex; flex-direction:column; height: calc(100% - 36px);">
+            <div class="calc-display">
+                <div class="calc-history" id="calc-history"></div>
+                <div class="calc-current" id="calc-current">0</div>
+            </div>
+            <div class="calc-grid">
+                <button class="calc-btn btn-action" onclick="calcClear()">C</button>
+                <button class="calc-btn btn-action" onclick="calcDel()">⌫</button>
+                <button class="calc-btn btn-op" onclick="calcOp('%')">%</button>
+                <button class="calc-btn btn-op" onclick="calcOp('/')">÷</button>
+                
+                <button class="calc-btn" onclick="calcNum('7')">7</button>
+                <button class="calc-btn" onclick="calcNum('8')">8</button>
+                <button class="calc-btn" onclick="calcNum('9')">9</button>
+                <button class="calc-btn btn-op" onclick="calcOp('*')">×</button>
+                
+                <button class="calc-btn" onclick="calcNum('4')">4</button>
+                <button class="calc-btn" onclick="calcNum('5')">5</button>
+                <button class="calc-btn" onclick="calcNum('6')">6</button>
+                <button class="calc-btn btn-op" onclick="calcOp('-')">-</button>
+                
+                <button class="calc-btn" onclick="calcNum('1')">1</button>
+                <button class="calc-btn" onclick="calcNum('2')">2</button>
+                <button class="calc-btn" onclick="calcNum('3')">3</button>
+                <button class="calc-btn btn-op" onclick="calcOp('+')">+</button>
+                
+                <button class="calc-btn btn-zero" onclick="calcNum('0')">0</button>
+                <button class="calc-btn" onclick="calcNum('.')">,</button>
+                <button class="calc-btn btn-equal" onclick="calcEqual()">=</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== BAŞLAT MENÜSÜ ==================== -->
+    <div class="start-menu" id="start-menu">
+        <div class="start-header" style="justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:20px;">
+                <h2>Başlangıç</h2>
+                <input type="text" class="start-search" placeholder="&#xf002;  Uygulama ara..." oninput="filterApps(this.value)">
+            </div>
+            <button class="power-btn" onclick="window.close()" title="Sistemi Kapat" style="background:transparent; border:none; color:#E81123; font-size:24px; cursor:pointer; padding:5px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                <i class="fa-solid fa-power-off"></i>
+            </button>
+        </div>
+        <div class="metro-container" id="metro-container">
+            <div class="metro-tile tile-blue"   onclick="openWindow('browser-window'); toggleStartMenu()">
+                <i class="fa-brands fa-chrome"></i><span>Tarayıcı</span>
+            </div>
+            <div class="metro-tile tile-orange" onclick="openWindow('terminal-window'); toggleStartMenu()">
+                <i class="fa-solid fa-terminal"></i><span>Komut Satırı</span>
+            </div>
+            <div class="metro-tile tile-purple" onclick="openWindow('settings-window'); toggleStartMenu()">
+                <i class="fa-solid fa-gear"></i><span>Ayarlar</span>
+            </div>
+            <div class="metro-tile tile-green"  onclick="openWindow('about-window'); toggleStartMenu()">
+                <i class="fa-solid fa-circle-info"></i><span>Hakkında</span>
+            </div>
+            <div class="metro-tile tile-red" onclick="openNotepad(); toggleStartMenu()">
+                <i class="fa-solid fa-file-lines"></i><span>Not Defteri</span>
+            </div>
+            <div class="metro-tile tile-blue" style="background:#008080;" onclick="openWindow('calc-window'); toggleStartMenu()">
+                <i class="fa-solid fa-calculator"></i><span>Hesap Makinesi</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== GÖREV ÇUBUĞU ==================== -->
+    <div class="taskbar" id="taskbar">
+        <div class="start-button" onclick="toggleStartMenu()" title="Başlat">
+            <i class="fa-brands fa-windows"></i>
+        </div>
+        <div class="taskbar-apps" id="taskbar-apps"></div>
+        <div class="taskbar-right">
+            <!-- Şarj Göstergesi -->
+            <div class="battery-widget" id="battery-widget" title="Pil Durumu">
+                <span class="battery-pct" id="battery-pct">--%</span>
+                <div class="battery-icon">
+                    <div class="battery-fill" id="battery-fill"></div>
+                    <div class="battery-tip"></div>
+                </div>
+                <i class="fa-solid fa-bolt battery-charging" id="battery-bolt" style="display:none;"></i>
+            </div>
+            <!-- Ses Kontrolü -->
+            <div class="taskbar-icon-btn volume-btn" id="volume-btn" title="Ses" onclick="toggleMute()">
+                <i class="fa-solid fa-volume-high" id="volume-icon"></i>
+                <div class="volume-popup" id="volume-popup">
+                    <input type="range" min="0" max="100" value="80" id="volume-slider"
+                        oninput="updateVolume(this.value)" onclick="event.stopPropagation()">
+                    <span id="volume-label">80%</span>
+                </div>
+            </div>
+            <!-- Ağ -->
+            <div class="taskbar-icon-btn" title="Ağ Bağlı"><i class="fa-solid fa-wifi"></i></div>
+            <div class="clock" id="clock">00:00</div>
+        </div>
+    </div>
+
+    <!-- ==================== ÖZEL UYARI MODALI ==================== -->
+    <div id="os-alert" style="display:none; position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); background:#fff; border:1px solid #ccc; box-shadow:0 15px 40px rgba(0,0,0,0.4); z-index:9999; padding:25px; border-radius:6px; text-align:center; min-width:320px;">
+        <i class="fa-solid fa-folder-open" style="font-size:45px; color:#F8D775; margin-bottom:15px;"></i>
+        <h3 style="font-weight:400; margin-bottom:10px; color:#222;">Klasör Boş</h3>
+        <p id="os-alert-msg" style="margin-bottom:20px; color:#666; font-size:14px;"></p>
+        <button onclick="document.getElementById('os-alert').style.display='none'" style="padding:8px 30px; background:#0078D7; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:14px;">Tamam</button>
+    </div>
+
+    <!-- ==================== HIZLI AYARLAR (QUICK SETTINGS) ==================== -->
+    <div id="quick-settings-panel" style="display:none; position:absolute; bottom:55px; right:15px; width:320px; background:rgba(30,30,40,0.95); backdrop-filter:blur(15px); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:20px; color:white; box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:9000; flex-direction:column; gap:20px;">
+        <div style="display:flex; justify-content:space-between; gap:10px;">
+            <div style="flex:1; background:rgba(0,120,215,0.8); padding:15px; border-radius:8px; display:flex; flex-direction:column; align-items:center; cursor:pointer; transition:0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                <i class="fa-solid fa-wifi" style="font-size:20px; margin-bottom:10px;"></i>
+                <span style="font-size:12px;">TurkNet-5G</span>
+            </div>
+            <div style="flex:1; background:rgba(255,255,255,0.1); padding:15px; border-radius:8px; display:flex; flex-direction:column; align-items:center; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <i class="fa-brands fa-bluetooth" style="font-size:20px; margin-bottom:10px;"></i>
+                <span style="font-size:12px;">Bluetooth</span>
+            </div>
+            <div style="flex:1; background:rgba(255,255,255,0.1); padding:15px; border-radius:8px; display:flex; flex-direction:column; align-items:center; cursor:pointer; transition:0.2s;" onclick="toggleNightMode()" id="nightmode-btn" onmouseover="if(this.style.background!=='rgba(0, 120, 215, 0.8)') this.style.background='rgba(255,255,255,0.2)'" onmouseout="if(this.style.background!=='rgba(0, 120, 215, 0.8)') this.style.background='rgba(255,255,255,0.1)'">
+                <i class="fa-solid fa-moon" style="font-size:20px; margin-bottom:10px;"></i>
+                <span style="font-size:12px;">Gece Işığı</span>
+            </div>
+        </div>
+        
+        <div style="display:flex; align-items:center; gap:15px;">
+            <i class="fa-solid fa-volume-low" style="width:20px; text-align:center;"></i>
+            <input type="range" id="qs-volume-slider" min="0" max="100" value="80" style="flex:1; accent-color:#0078D7;" oninput="updateVolume(this.value)">
+            <span id="qs-volume-label" style="font-size:12px; width:30px;">80%</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:15px;">
+            <i class="fa-solid fa-sun" style="width:20px; text-align:center;"></i>
+            <input type="range" id="qs-brightness-slider" min="20" max="100" value="100" style="flex:1; accent-color:#0078D7;" oninput="updateBrightness(this.value)">
+            <span id="qs-brightness-label" style="font-size:12px; width:30px;">100%</span>
+        </div>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
+            <span style="font-size:12px; color:#aaa;" id="qs-battery-text">Pil: Hesaplanıyor...</span>
+            <button onclick="openWindow('settings-window'); toggleQuickSettings()" style="background:transparent; border:none; color:white; cursor:pointer; font-size:16px;" title="Ayarlar"><i class="fa-solid fa-gear"></i></button>
+        </div>
+    </div>
+
+    <!-- ==================== BİLDİRİM MERKEZİ ==================== -->
+    <div id="action-center-panel" style="display:none; position:absolute; bottom:55px; right:15px; width:320px; height:400px; background:rgba(30,30,40,0.95); backdrop-filter:blur(15px); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:20px; color:white; box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:9000; flex-direction:column;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="font-weight:400; font-size:16px;">Bildirimler</h3>
+            <span style="font-size:12px; color:#0078D7; cursor:pointer;" onclick="document.getElementById('notif-list').innerHTML='<div style=\'text-align:center; color:#888; margin-top:50px;\'>Bildirim yok.</div>'">Tümünü Temizle</span>
+        </div>
+        <div id="notif-list" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px;">
+            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border-left:3px solid #0078D7;">
+                <div style="font-weight:600; font-size:13px; margin-bottom:5px;">Sisteme Hoş Geldin!</div>
+                <div style="font-size:12px; color:#ccc;">İşletim sistemi başarıyla başlatıldı ve her şey tıkır tıkır çalışıyor.</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border-left:3px solid #4CAF50;">
+                <div style="font-weight:600; font-size:13px; margin-bottom:5px;">Sistem Taraması</div>
+                <div style="font-size:12px; color:#ccc;">Herhangi bir tehdit bulunamadı. Cihazınız güvende.</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
